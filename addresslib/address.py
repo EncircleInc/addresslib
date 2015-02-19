@@ -42,7 +42,7 @@ import addresslib.validate
 from addresslib.parser import MAX_ADDRESS_LENGTH
 from addresslib.utils import is_pure_ascii
 from addresslib.utils import metrics_wrapper
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 
 @metrics_wrapper()
