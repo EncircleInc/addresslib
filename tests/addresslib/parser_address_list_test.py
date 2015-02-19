@@ -5,8 +5,8 @@ from itertools import chain, combinations, permutations
 from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 
-from flanker.addresslib import address
-from flanker.addresslib.address import EmailAddress, AddressList
+from addresslib import address
+from addresslib.address import EmailAddress, AddressList
 
 
 @nottest

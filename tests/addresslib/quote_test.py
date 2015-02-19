@@ -1,6 +1,6 @@
 # coding=utf-8
 from nose.tools import eq_
-from flanker.addresslib.quote import smart_quote, smart_unquote
+from addresslib.quote import smart_quote, smart_unquote
 
 
 def test_quote():

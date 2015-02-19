@@ -8,8 +8,8 @@ from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
 
-from flanker.addresslib import address
-from flanker.addresslib import validate
+from addresslib import address
+from addresslib import validate
 
 
 COMMENT = re.compile(r'''\s*#''')
@@ -185,8 +185,8 @@ def test_parse_syntax_only_false():
         assert_equal(unpar, all_invalid_list)
 
 
-@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
-@patch('flanker.addresslib.validate.lookup_domain')
+@patch('addresslib.validate.connect_to_mail_exchanger')
+@patch('addresslib.validate.lookup_domain')
 def test_mx_lookup(ld, cmx):
     # has MX, has MX server
     ld.return_value = ['mx1.fake.mailgun.com', 'mx2.fake.mailgun.com']

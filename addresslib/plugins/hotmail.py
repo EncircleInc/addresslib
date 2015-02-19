@@ -30,7 +30,7 @@
 
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
+from addresslib.tokenizer import TokenStream
 
 HOTMAIL_PREFIX  = re.compile(r'''
                             [A-Za-z]+

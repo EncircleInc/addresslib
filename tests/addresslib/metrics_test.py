@@ -5,7 +5,7 @@ from mock import patch
 from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 
-from flanker.addresslib import address, validate
+from addresslib import address, validate
 
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):

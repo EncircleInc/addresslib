@@ -9,8 +9,8 @@ from .. import *
 from nose.tools import assert_equal, assert_not_equal, ok_
 from nose.tools import nottest
 
-from flanker.addresslib import validate
-from flanker.addresslib import corrector
+from addresslib import validate
+from addresslib import corrector
 
 
 COMMENT = re.compile(r'''\s*#''')

@@ -3,8 +3,8 @@
 from .. import *
 from nose.tools import assert_equal, assert_not_equal
 
-from flanker.addresslib.address import parse, parse_list
-from flanker.addresslib.address import Address, AddressList, EmailAddress, UrlAddress
+from addresslib.address import parse, parse_list
+from addresslib.address import Address, AddressList, EmailAddress, UrlAddress
 
 
 def test_addr_properties():

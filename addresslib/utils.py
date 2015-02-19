@@ -1,52 +1,14 @@
 # coding:utf-8
 """
-Utility functions and classes used by flanker.
+Utility functions and classes used by addresslib.
 """
 import logging
 import re
 
-import cchardet
-import chardet
-
-from flanker.mime.message import errors
 from functools import wraps
 
 
 log = logging.getLogger(__name__)
-
-
-def _guess_and_convert(value):
-    """
-    Try to guess the encoding of the passed value and decode it.
-
-    Uses cchardet to guess the encoding and if guessing or decoding fails, falls
-    back to chardet which is much slower.
-    """
-    try:
-        return _guess_and_convert_with(value)
-    except:
-        log.warn("Fallback to chardet")
-        return _guess_and_convert_with(value, detector=chardet)
-
-
-def _guess_and_convert_with(value, detector=cchardet):
-    """
-    Try to guess the encoding of the passed value with the provided detector
-    and decode it.
-
-    The detector is either chardet or cchardet module.
-    """
-    charset = detector.detect(value)
-
-    if not charset["encoding"]:
-        raise errors.DecodingError("Failed to guess encoding for %s" % (value,))
-
-    try:
-        value = value.decode(charset["encoding"], "replace")
-        return value
-
-    except (UnicodeError, LookupError) as e:
-        raise errors.DecodingError(str(e))
 
 
 def _make_unicode(value, charset=None):

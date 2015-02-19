@@ -3,8 +3,8 @@
 import random
 import string
 
-from flanker.addresslib import address
-from flanker.addresslib import validate
+from addresslib import address
+from addresslib import validate
 
 from mock import patch
 from nose.tools import assert_equal, assert_not_equal

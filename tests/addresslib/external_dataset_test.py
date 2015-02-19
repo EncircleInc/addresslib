@@ -5,7 +5,7 @@ import re
 from .. import *
 
 from nose.tools import assert_equal, assert_not_equal
-from flanker.addresslib import address
+from addresslib import address
 
 COMMENT = re.compile(r'''\s*#''')
 

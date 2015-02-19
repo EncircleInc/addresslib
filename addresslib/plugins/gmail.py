@@ -26,8 +26,8 @@
         gmail-suffix    ->      alpha | num
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
-from flanker.addresslib.tokenizer import ATOM
+from addresslib.tokenizer import TokenStream
+from addresslib.tokenizer import ATOM
 
 
 GMAIL_BASE = re.compile(r'''

@@ -6,9 +6,9 @@ domains, MX record lookup and query, as well as custom local-part grammar for
 large ESPs.
 
 This module should probably not be used directly, use
-flanker.addresslib.address unles you are building ontop of the library.
+addresslib.address unles you are building ontop of the library.
 
-Public Functions in flanker.addresslib.validate module:
+Public Functions in addresslib.validate module:
 
     * suggest_alternate(addr_spec)
 
@@ -37,10 +37,10 @@ import re
 import redis
 import socket
 import time
-import flanker.addresslib
+import addresslib
 
-from flanker.addresslib import corrector
-from flanker.utils import metrics_wrapper
+from addresslib import corrector
+from addresslib.utils import metrics_wrapper
 
 
 def suggest_alternate(addr_spec):
@@ -101,10 +101,10 @@ def plugin_for_esp(mail_exchanger):
     email service provider is returned, otherwise None is returned.
 
     If you are adding the grammar for a email service provider, add the module
-    to the flanker.addresslib.plugins directory then update the
-    flanker.addresslib package to add it to the known list of custom grammars.
+    to the addresslib.plugins directory then update the
+    addresslib package to add it to the known list of custom grammars.
     """
-    for grammar in flanker.addresslib.CUSTOM_GRAMMAR_LIST:
+    for grammar in addresslib.CUSTOM_GRAMMAR_LIST:
         if grammar[0].match(mail_exchanger):
             return grammar[1]
 
@@ -119,7 +119,7 @@ def mail_exchanger_lookup(domain, metrics=False):
     exist None will be returned.
     """
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
-    mx_cache = flanker.addresslib.mx_cache
+    mx_cache = addresslib.mx_cache
 
     # look in cache
     bstart = time.time()
@@ -157,10 +157,10 @@ def lookup_exchanger_in_cache(domain):
     Uses a cache to store the results of the mail exchanger lookup to speed
     up lookup times. The default is redis, but this can be overidden by your
     own cache as long as it conforms to the same interface as that of a dict.
-    See the implimentation of the redis cache in the flanker.addresslib.driver
+    See the implimentation of the redis cache in the addresslib.driver
     package for more details if you wish to implement your own cache.
     """
-    mx_cache = flanker.addresslib.mx_cache
+    mx_cache = addresslib.mx_cache
 
     lookup = mx_cache[domain]
     if lookup is None:
@@ -178,11 +178,11 @@ def lookup_domain(domain):
     the dns server specified by your operating system. Just like the cache,
     this can be overridden by your own dns lookup method of choice as long
     as it conforms to the same interface as that of a dict. See the the
-    implimentation of the dnspython lookup in the flanker.addresslib.driver
+    implimentation of the dnspython lookup in the addresslib.driver
     package for more details.
     """
 
-    dns_lookup = flanker.addresslib.dns_lookup
+    dns_lookup = addresslib.dns_lookup
 
     fqdn = domain if domain[-1] == '.' else ''.join([domain, '.'])
     mx_hosts = dns_lookup[fqdn]

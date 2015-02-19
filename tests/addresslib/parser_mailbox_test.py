@@ -2,9 +2,9 @@
 
 from nose.tools import nottest, assert_equal, assert_not_equal
 
-from flanker.addresslib import address
-from flanker.addresslib.address import EmailAddress
-from flanker.addresslib.parser import ParserException
+from addresslib import address
+from addresslib.address import EmailAddress
+from addresslib.parser import ParserException
 
 VALID_QTEXT         = [chr(x) for x in [0x21] + range(0x23, 0x5b) + range(0x5d, 0x7e)]
 VALID_QUOTED_PAIR   = [chr(x) for x in range(0x20, 0x7e)]

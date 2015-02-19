@@ -1,6 +1,6 @@
 from StringIO import StringIO
 import re
-from flanker.addresslib.tokenizer import ATOM, WHITESPACE
+from addresslib.tokenizer import ATOM, WHITESPACE
 
 
 _RE_ATOM_PHRASE = re.compile(

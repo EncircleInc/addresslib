@@ -57,32 +57,30 @@ Additional limitations on email addresses:
 """
 
 import re
-import flanker.addresslib.address
+import addresslib.address
 
-from flanker.addresslib.tokenizer import TokenStream
-from flanker.addresslib.tokenizer import LBRACKET
-from flanker.addresslib.tokenizer import AT_SYMBOL
-from flanker.addresslib.tokenizer import RBRACKET
-from flanker.addresslib.tokenizer import DQUOTE
-from flanker.addresslib.tokenizer import BAD_DOMAIN
-from flanker.addresslib.tokenizer import DELIMITER
-from flanker.addresslib.tokenizer import RELAX_ATOM
-from flanker.addresslib.tokenizer import WHITESPACE
-from flanker.addresslib.tokenizer import UNI_WHITE
-from flanker.addresslib.tokenizer import ATOM
-from flanker.addresslib.tokenizer import UNI_ATOM
-from flanker.addresslib.tokenizer import UNI_QSTR
-from flanker.addresslib.tokenizer import DOT_ATOM
-from flanker.addresslib.tokenizer import QSTRING
-from flanker.addresslib.tokenizer import URL
+from addresslib.tokenizer import TokenStream
+from addresslib.tokenizer import LBRACKET
+from addresslib.tokenizer import AT_SYMBOL
+from addresslib.tokenizer import RBRACKET
+from addresslib.tokenizer import DQUOTE
+from addresslib.tokenizer import BAD_DOMAIN
+from addresslib.tokenizer import DELIMITER
+from addresslib.tokenizer import RELAX_ATOM
+from addresslib.tokenizer import WHITESPACE
+from addresslib.tokenizer import UNI_WHITE
+from addresslib.tokenizer import ATOM
+from addresslib.tokenizer import UNI_ATOM
+from addresslib.tokenizer import UNI_QSTR
+from addresslib.tokenizer import DOT_ATOM
+from addresslib.tokenizer import QSTRING
+from addresslib.tokenizer import URL
 
-from flanker.mime.message.headers.encoding import encode_string
-
-from flanker.utils import is_pure_ascii
-from flanker.utils import contains_control_chars
-from flanker.utils import cleanup_display_name
-from flanker.utils import cleanup_email
-from flanker.utils import to_utf8
+from utils import is_pure_ascii
+from utils import contains_control_chars
+from utils import cleanup_display_name
+from utils import cleanup_email
+from utils import to_utf8
 
 
 class _AddressParser(object):
@@ -217,7 +215,7 @@ class _AddressParser(object):
         Grammar: address-list-relaxed -> address { delimiter address }
         """
         #addrs = []
-        addrs = flanker.addresslib.address.AddressList()
+        addrs = addresslib.address.AddressList()
         unparsable = []
 
         # address
@@ -290,7 +288,7 @@ class _AddressParser(object):
         Grammar: address-list-strict -> address { delimiter address }
         """
         #addrs = []
-        addrs = flanker.addresslib.address.AddressList()
+        addrs = addresslib.address.AddressList()
 
         # address
         addr = self._address()
@@ -323,7 +321,7 @@ class _AddressParser(object):
             self._addr_spec() or self._url()
 
         # if email address, check that it passes post processing checks
-        if addr and isinstance(addr, flanker.addresslib.address.EmailAddress):
+        if addr and isinstance(addr, addresslib.address.EmailAddress):
             if self._mailbox_post_processing_checks(addr.address) is False:
                 # roll back
                 self.stream.position = start_pos
@@ -338,7 +336,7 @@ class _AddressParser(object):
         earl = self.stream.get_token(URL)
         if earl is None:
             return None
-        return flanker.addresslib.address.UrlAddress(to_utf8(earl))
+        return addresslib.address.UrlAddress(to_utf8(earl))
 
     def _name_addr_rfc(self):
         """
@@ -356,9 +354,9 @@ class _AddressParser(object):
             return None
 
         if dname:
-            return flanker.addresslib.address.EmailAddress(aaddr,
+            return addresslib.address.EmailAddress(aaddr,
                                                            parsed_name=dname)
-        return flanker.addresslib.address.EmailAddress(aaddr)
+        return addresslib.address.EmailAddress(aaddr)
 
     def _display_name_rfc(self):
         """
@@ -441,9 +439,9 @@ class _AddressParser(object):
             return None
 
         if dname:
-            return flanker.addresslib.address.EmailAddress(aaddr,
+            return addresslib.address.EmailAddress(aaddr,
                                                            parsed_name=dname)
-        return flanker.addresslib.address.EmailAddress(aaddr)
+        return addresslib.address.EmailAddress(aaddr)
 
     def _display_name_lax(self):
         """
@@ -550,7 +548,7 @@ class _AddressParser(object):
         aspec = cleanup_email(''.join([lpart, asym, domn]))
         if as_string:
             return aspec
-        return flanker.addresslib.address.EmailAddress(aspec)
+        return addresslib.address.EmailAddress(aspec)
 
     def _local_part(self):
         """
