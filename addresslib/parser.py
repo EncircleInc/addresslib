@@ -76,11 +76,11 @@ from addresslib.tokenizer import DOT_ATOM
 from addresslib.tokenizer import QSTRING
 from addresslib.tokenizer import URL
 
-from utils import is_pure_ascii
-from utils import contains_control_chars
-from utils import cleanup_display_name
-from utils import cleanup_email
-from utils import to_utf8
+from .utils import is_pure_ascii
+from .utils import contains_control_chars
+from .utils import cleanup_display_name
+from .utils import cleanup_email
+from .utils import to_utf8
 
 
 class _AddressParser(object):
