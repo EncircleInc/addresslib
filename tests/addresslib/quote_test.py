@@ -49,4 +49,4 @@ def test_unquote__nothing_to_unquote():
 
 
 def test_unquote__unicode():
-    eq_(u'Превед Медвед', smart_unquote(u'Превед Медвед'))
+    eq_('Превед Медвед', smart_unquote('Превед Медвед'))

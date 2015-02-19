@@ -10,7 +10,7 @@ from addresslib.address import Address, AddressList, EmailAddress, UrlAddress
 def test_addr_properties():
     email = parse('name@host.com')
     url = parse('http://host.com')
-    non_ascii = parse(u'Gonzalo Bañuelos<gonz@host.com>')
+    non_ascii = parse('Gonzalo Bañuelos<gonz@host.com>')
 
     eq_(False, url.supports_routing)
     eq_(True,  email.supports_routing)
@@ -103,11 +103,11 @@ def test_addresslist_with_apostrophe():
     eq_('Os Wi <oswi@example.com>', lst[1].full_spec())
     lst = parse_list("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>")
     eq_('=?utf-8?q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>', lst.full_spec())
-    eq_(u'Eugueny ώ Kontsevoy', lst[0].display_name)
+    eq_('Eugueny ώ Kontsevoy', lst[0].display_name)
 
 
 def test_addresslist_non_ascii_list_input():
-    al = [u'Aurélien Berger  <ab@example.com>', 'Os Wi <oswi@example.com>']
+    al = ['Aurélien Berger  <ab@example.com>', 'Os Wi <oswi@example.com>']
     lst = parse_list(al)
     eq_(2, len(lst))
     eq_('=?utf-8?q?Aur=C3=A9lien_Berger?= <ab@example.com>', lst[0].full_spec())
@@ -115,7 +115,7 @@ def test_addresslist_non_ascii_list_input():
 
 
 def test_addresslist_address_obj_list_input():
-    al = [EmailAddress(u'Aurélien Berger  <ab@example.com>'),
+    al = [EmailAddress('Aurélien Berger  <ab@example.com>'),
           UrlAddress('https://www.example.com')]
     lst = parse_list(al)
     eq_(2, len(lst))
@@ -137,7 +137,7 @@ def test_display_name__to_full_spec():
     eq_('"\\"\\"" <foo@bar.com>',
         EmailAddress('""', 'foo@bar.com').full_spec()),
     eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
-        EmailAddress(u'Привет Медвед', 'foo@bar.com').full_spec())
+        EmailAddress('Привет Медвед', 'foo@bar.com').full_spec())
 
 
 def test_display_name__update():
@@ -146,7 +146,7 @@ def test_display_name__update():
     eq_('foo bar <foo@bar.com>', a.full_spec())
 
     # When
-    a.display_name = u'Привет Медвед'
+    a.display_name = 'Привет Медвед'
 
     # Then
     eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',

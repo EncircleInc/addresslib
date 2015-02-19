@@ -18,6 +18,6 @@ def test_is_email():
 
 
 def test_header_to_unicode():
-    assert_equal(u'Eugueny ώ Kontsevoy', mime_to_unicode("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?=") )
-    assert_equal(u'hello', mime_to_unicode("hello"))
+    assert_equal('Eugueny ώ Kontsevoy', mime_to_unicode("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?=") )
+    assert_equal('hello', mime_to_unicode("hello"))
     assert_equal(None, mime_to_unicode(None))

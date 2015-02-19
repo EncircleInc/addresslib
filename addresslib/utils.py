@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def _make_unicode(value, charset=None):
-    if isinstance(value, unicode):
+    if isinstance(value, str):
         return value
 
     try:
@@ -33,7 +33,7 @@ def _make_unicode(value, charset=None):
 
 def to_unicode(value, charset=None):
     value = _make_unicode(value, charset)
-    return unicode(value.encode("utf-8", "strict"), "utf-8", "strict")
+    return str(value.encode("utf-8", "strict"), "utf-8", "strict")
 
 
 def to_utf8(value, charset=None):
@@ -62,7 +62,7 @@ def is_pure_ascii(value):
 
     if value is None:
         return False
-    if not isinstance(value, basestring):
+    if not isinstance(value, str):
         return False
 
     try:

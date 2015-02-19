@@ -84,7 +84,7 @@ def test_simple_valid():
     assert_equal(addrs[1].full_spec(), 'Os Wi <oswi@example.com>')
 
 
-    s = u'''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
+    s = '''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
     addrs = address.parse_list(s)
 
     assert_equal(3, len(addrs))
@@ -100,7 +100,7 @@ def test_simple_valid():
     assert_equal(addrs[1].full_spec(), 'Zeka <EV@host.com>')
 
     assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, u'Gonzalo Bañuelos')
+    assert_equal(addrs[2].display_name, 'Gonzalo Bañuelos')
     assert_equal(addrs[2].address, 'gonz@host.com')
     assert_equal(addrs[2].full_spec(), '=?utf-8?q?Gonzalo_Ba=C3=B1uelos?= <gonz@host.com>')
 
