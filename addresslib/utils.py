@@ -10,44 +10,6 @@ from functools import wraps
 
 log = logging.getLogger(__name__)
 
-
-def _make_unicode(value, charset=None):
-    if isinstance(value, str):
-        return value
-
-    try:
-        # if charset is provided, try decoding with it
-        if charset:
-            value = value.decode(charset, "strict")
-
-        # if charset is not provided, assume UTF-8
-        else:
-            value = value.decode("utf-8", "strict")
-
-    # last resort: try to guess the encoding
-    except (UnicodeError, LookupError):
-        value = _guess_and_convert(value)
-
-    return value
-
-
-def to_unicode(value, charset=None):
-    value = _make_unicode(value, charset)
-    return str(value.encode("utf-8", "strict"), "utf-8", "strict")
-
-
-def to_utf8(value, charset=None):
-    '''
-    Safely returns a UTF-8 version of a given string
-    >>> utils.to_utf8(u'hi')
-        'hi'
-    '''
-
-    value = _make_unicode(value, charset)
-
-    return value.encode("utf-8", "strict")
-
-
 def is_pure_ascii(value):
     '''
     Determines whether the given string is a pure ascii

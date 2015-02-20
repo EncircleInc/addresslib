@@ -185,12 +185,6 @@ class EmailAddress(object):
         """
         return True
 
-    def to_unicode(self):
-        """
-        Converts to unicode.
-        """
-        return '{0}'.format(self.address)
-
     def __eq__(self, other):
         """
         Allows comparison of two addresses.
