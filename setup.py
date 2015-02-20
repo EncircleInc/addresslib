@@ -4,15 +4,15 @@ import sys
 from setuptools import setup, find_packages
 
 
-setup(name='flanker',
+setup(name='addresslib',
       version='0.4.27',
-      description='Mailgun Parsing Tools',
+      description='Email Validation forked from Flanker',
       long_description=open('README.rst').read(),
       classifiers=[],
       keywords='',
-      author='Mailgun Inc.',
-      author_email='admin@mailgunhq.com',
-      url='http://mailgun.net',
+      author='Mailgun Inc., Encircle Inc.',
+      author_email='dev@encircleapp.com',
+      url='http://mailgun.ne://github.com/EncircleInc/addresslib',
       license='Apache 2',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
@@ -22,15 +22,8 @@ setup(name='flanker',
           'mock'
       ],
       install_requires=[
-          'chardet>=1.0.1',
-          'cchardet>=0.3.5',
-          'cython>=0.21.1',
-          'dnsq>=1.1.3',
-          'expiringdict>=1.1.2',
-          'WebOb>=0.9.8',
-          'redis>=2.7.1',
-          # IMPORTANT! Newer regex versions are a lot slower for
-          # mime parsing (100x slower) so keep it as-is for now.
-          'regex>=0.1.20110315',
+          'dnspython3',
+          'redis',
+          'regex',
       ],
       )
