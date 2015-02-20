@@ -109,5 +109,5 @@ def metrics_wrapper():
 
 
 # allows, \t\n\v\f\r (0x09-0x0d)
-CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
+CONTROL_CHARS = ''.join(map(chr, list(range(0, 9)) + list(range(14, 32)) + list(range(127, 160))))
 CONTROL_CHAR_RE = re.compile('[%s]' % re.escape(CONTROL_CHARS))

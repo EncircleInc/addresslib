@@ -8,14 +8,7 @@ Public Functions in addresslib.address module:
 
     * parse(address, addr_spec_only=False)
 
-      Parse a single address or URL. Can parse just the address spec or the
-      full mailbox.
-
-    * parse_list(address_list, strict=False, as_tuple=False)
-
-      Parse a list of addresses, operates in strict or relaxed modes. Strict
-      mode will fail at the first instance of invalid grammar, relaxed modes
-      tries to recover and continue.
+      Parse a single address.
 
     * validate_address(addr_spec)
 
@@ -23,13 +16,8 @@ Public Functions in addresslib.address module:
       address spec. In the case of a valid address returns an EmailAddress
       object, otherwise returns None.
 
-    * validate_list(addr_list, as_tuple=False)
-
-      Validates an address list, and returns a tuple of parsed and unparsed
-      portions.
-
-When valid addresses are returned, they are returned as an instance of either
-EmailAddress or UrlAddress in addresslib.address.
+When valid addresses are returned, they are returned as an instance of
+EmailAddress in addresslib.address.
 
 See the parser.py module for implementation details of the parser.
 """
@@ -44,28 +32,17 @@ from addresslib.utils import is_pure_ascii
 from addresslib.utils import metrics_wrapper
 from urllib.parse import urlparse
 
-
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
     """
-    Given a string, returns a scalar object representing a single full
-    mailbox (display name and addr-spec), addr-spec, or a url.
+    Given a string, returns a scalar object representing an email address
 
     Returns an Address object and optionally metrics on processing
     time if requested.
 
     Examples:
-        >>> address.parse('John Smith <john@smith.com')
-        John Smith <john@smith.com>
-
-        >>> print address.parse('John <john@smith.com>', addr_spec_only=True)
-        None
-
         >>> print address.parse('john@smith.com', addr_spec_only=True)
         'john@smith.com'
-
-        >>> address.parse('http://host.com/post?q')
-        http://host.com/post?q
 
         >>> print address.parse('foo')
         None
@@ -91,62 +68,6 @@ def parse(address, addr_spec_only=False, metrics=False):
     # supress any exceptions and return None
     except addresslib.parser.ParserException:
         return None, mtimes
-
-
-@metrics_wrapper()
-def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
-    """
-    Given an string or list of email addresses and/or urls seperated by a
-    delimiter (comma (,) or semi-colon (;)), returns an AddressList object
-    (an iterable list representing parsed email addresses and urls).
-
-    The Parser operates in strict or relaxed modes. In strict mode the parser
-    will quit at the first occurrence of error, in relaxed mode the parser
-    will attempt to seek to to known valid location and continue parsing.
-
-    The parser can return a list of parsed addresses or a tuple containing
-    the parsed and unparsed portions. The parser also returns the parsing
-    time metrics if requested.
-
-    Examples:
-        >>> address.parse_list('A <a@b>')
-        [A <a@b>]
-
-        >>> address.parse_list('A <a@b>, C <d@e>')
-        [A <a@b>, C <d@e>]
-
-        >>> address.parse_list('A <a@b>, C, D <d@e>')
-        [A <a@b>, D <d@e>]
-
-        >>> address.parse_list('A <a@b>, C, D <d@e>')
-        [A <a@b>]
-
-        >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
-        [A <a@b>, D <d@e>, http://localhost]
-    """
-    mtimes = {'parsing': 0}
-    parser = addresslib.parser._AddressParser(strict)
-
-    # if we have a list, transform it into a string first
-    if isinstance(address_list, list):
-        address_list = ', '.join(_normalize_address_list(address_list))
-
-    # parse
-    try:
-        bstart = time.time()
-        if strict:
-            p = parser.address_list(address_list)
-            u = []
-        else:
-            p, u = parser.address_list(address_list)
-        mtimes['parsing'] = time.time() - bstart
-    except addresslib.parser.ParserException:
-        p, u = (AddressList(), [])
-
-    # return as tuple or just parsed addresses
-    if as_tuple:
-        return p, u, mtimes
-    return p, mtimes
 
 
 @metrics_wrapper()
@@ -208,123 +129,19 @@ def validate_address(addr_spec, metrics=False):
 
     return paddr, mtimes
 
-
-@metrics_wrapper()
-def validate_list(addr_list, as_tuple=False, metrics=False):
-    """
-    Validates an address list, and returns a tuple of parsed and unparsed
-    portions.
-
-    Returns results as a list or tuple consisting of the parsed addresses
-    and unparsable protions. If requested, will also return parisng time
-    metrics.
-
-    Examples:
-        >>> address.validate_address_list('a@mailgun.com, c@mailgun.com')
-        [a@mailgun.com, c@mailgun.com]
-
-        >>> address.validate_address_list('a@mailgun.com, b@example.com')
-        [a@mailgun.com]
-
-        >>> address.validate_address_list('a@b, c@d, e@example.com', as_tuple=True)
-        ([a@mailgun.com, c@mailgun.com], ['e@example.com'])
-    """
-    mtimes = {'parsing': 0, 'mx_lookup': 0,
-        'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
-
-    if addr_list is None:
-        return None, mtimes
-
-    # parse addresses
-    bstart = time.time()
-    parsed_addresses, unparseable = parse_list(addr_list, as_tuple=True)
-    mtimes['parsing'] = time.time() - bstart
-
-    plist = addresslib.address.AddressList()
-    ulist = []
-
-    # make sure parsed list pass dns and esp grammar
-    for paddr in parsed_addresses:
-
-        # lookup if this domain has a mail exchanger
-        exchanger, mx_metrics = \
-            addresslib.validate.mail_exchanger_lookup(paddr.hostname, metrics=True)
-        mtimes['mx_lookup'] += mx_metrics['mx_lookup']
-        mtimes['dns_lookup'] += mx_metrics['dns_lookup']
-        mtimes['mx_conn'] += mx_metrics['mx_conn']
-
-        if exchanger is None:
-            ulist.append(paddr.full_spec())
-            continue
-
-        # lookup custom local-part grammar if it exists
-        plugin = addresslib.validate.plugin_for_esp(exchanger)
-        bstart = time.time()
-        if plugin and plugin.validate(paddr.mailbox) is False:
-            ulist.append(paddr.full_spec())
-            continue
-        mtimes['custom_grammar'] = time.time() - bstart
-
-        plist.append(paddr)
-
-    # loop over unparsable list and check if any can be fixed with
-    # preparsing cleanup and if so, run full validator
-    for unpar in unparseable:
-        paddr, metrics = validate_address(unpar, metrics=True)
-        if paddr:
-            plist.append(paddr)
-        else:
-            ulist.append(unpar)
-
-        # update all the metrics
-        for k, v in metrics.iteritems():
-            metrics[k] += v
-
-    if as_tuple:
-        return plist, ulist, mtimes
-    return plist, mtimes
-
-
 def is_email(string):
     if parse(string, True):
         return True
     return False
 
-
-class Address(object):
-    """
-    Base class that represents an address (email or URL). Use it to create
-    concrete instances of different addresses:
-    """
-
-    @property
-    def supports_routing(self):
-        """
-        Indicates that by default this address cannot be routed.
-        """
-        return False
-
-    class Type(object):
-        """
-        Enumerates the types of addresses we support:
-            >>> parse('foo@example.com').addr_type
-            'email'
-
-            >>> parse('http://example.com').addr_type
-            'url'
-        """
-        Email = 'email'
-        Url   = 'url'
-
-
-class EmailAddress(Address):
+class EmailAddress(object):
     """
     Represents a fully parsed email address with built-in support for MIME
     encoding. Note, do not use EmailAddress class directly, use the parse()
-    or parse_list() functions to return a scalar or iterable list respectively.
+    function to return a scalar or iterable list respectively.
 
     Examples:
-       >>> addr = EmailAddress("Bob Silva", "bob@host.com")
+       >>> addr = EmailAddress("bob@host.com")
        >>> addr.address
        'bob@host.com'
        >>> addr.hostname
@@ -343,34 +160,16 @@ class EmailAddress(Address):
        'Bob Silva <bob@host.com>'
     """
 
-    __slots__ = ['display_name', 'mailbox', 'hostname', 'address']
+    __slots__ = ['mailbox', 'hostname', 'address']
 
-    def __init__(self, display_name, spec=None, parsed_name=None):
-        if spec is None:
-            spec = display_name
-            display_name = None
+    def __init__(self, spec):
 
         assert(spec)
-
-        if parsed_name:
-            self.display_name = smart_unquote(mime_to_unicode(parsed_name))
-        elif display_name:
-            self.display_name = display_name
-        else:
-            self.display_name = ''
 
         parts = spec.rsplit('@', 1)
         self.mailbox = parts[0]
         self.hostname = parts[1].lower()
         self.address = self.mailbox + "@" + self.hostname
-        self.addr_type = self.Type.Email
-
-    def __repr__(self):
-        """
-        >>> repr(EmailAddress("John Smith", "john@smith.com"))
-        'John Smith <john@smith.com>'
-        """
-        return self.full_spec()
 
     def __str__(self):
         """
@@ -386,32 +185,11 @@ class EmailAddress(Address):
         """
         return True
 
-    def full_spec(self):
-        """
-        Returns a full spec of an email address. Always in ASCII, RFC-2822
-        compliant, safe to be included into MIME:
-
-           >>> EmailAddress("Ev K", "ev@example.com").full_spec()
-           'Ev K <ev@host.com>'
-           >>> EmailAddress("Жека", "ev@example.com").full_spec()
-           '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
-        """
-        if self.display_name:
-            encoded_display_name = smart_quote(encode_string(
-                None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{0} <{1}>'.format(encoded_display_name, self.address)
-        return '{0}'.format(self.address)
-
     def to_unicode(self):
         """
         Converts to unicode.
         """
-        if self.display_name:
-            return '{0} <{1}>'.format(self.display_name, self.address)
         return '{0}'.format(self.address)
-
-    def __cmp__(self, other):
-        return True
 
     def __eq__(self, other):
         """
@@ -431,7 +209,7 @@ class EmailAddress(Address):
         them in sets
 
             >>> a = Address.from_string("a@host")
-            >>> b = Address.from_string("A <A@host>")
+            >>> b = Address.from_string("A@host")
             >>> hash(a) == hash(b)
             True
             >>> s = set()
@@ -441,180 +219,3 @@ class EmailAddress(Address):
             1
         """
         return hash(self.address.lower())
-
-
-class UrlAddress(Address):
-    """
-    Represents a parsed URL:
-        >>> url = UrlAddress("http://user@host.com:8080?q=a")
-        >>> url.hostname
-        'host.com'
-        >>> url.port
-        8080
-        >>> url.scheme
-        'http'
-        >>> str(url)
-        'http://user@host.com:8080?q=a'
-
-    Note: do not create UrlAddress class directly by passing raw "internet
-    data", use the parse() and parse_list() functions instead.
-    """
-
-    __slots__ = ['address', 'parse_result']
-
-    def __init__(self, spec):
-        self.address = spec
-        self.parse_result = urlparse(spec)
-        self.addr_type = self.Type.Url
-
-    @property
-    def hostname(self):
-        hostname = self.parse_result.hostname
-        if hostname:
-            return hostname.lower()
-
-    @property
-    def port(self):
-        return self.parse_result.port
-
-    @property
-    def scheme(self):
-        return self.parse_result.scheme
-
-    @property
-    def path(self):
-        return self.parse_result.path
-
-    def __str__(self):
-        return self.address
-
-    def full_spec(self):
-        return self.address
-
-    def to_unicode(self):
-        return self.address
-
-    def __repr__(self):
-        return self.address
-
-    def __eq__(self, other):
-        "Allows comparison of two URLs"
-        if other:
-            if not isinstance(other, str):
-                other = other.address
-            return self.address == other
-
-    def __hash__(self):
-        return hash(self.address)
-
-
-class AddressList(object):
-    """
-    Keeps the list of addresses. Each address is an EmailAddress or
-    URLAddress objectAddress-derived object.
-
-    To create a list, use the parse_list method, do not create an
-    AddressList directly.
-
-    To see if the address is in the list:
-        >>> "missing@host.com" in al
-        False
-        >>> "bob@host.COM" in al
-        True
-    """
-
-    def __init__(self, container=None):
-        if container is None:
-            container = []
-        self.container = container
-
-    def append(self, n):
-        self.container.append(n)
-
-    def remove(self, n):
-        self.container.remove(n)
-
-    def __iter__(self):
-        return iter(self.container)
-
-    def __getitem__(self, key):
-        return self.container[key]
-
-    def __len__(self):
-        return len(self.container)
-
-    def __eq__(self, other):
-        """
-        When comparing ourselves to other lists we must ignore order.
-        """
-        if isinstance(other, list):
-            other = parse_list(other)
-        return set(self.container) == set(other.container)
-
-    def __repr__(self):
-        return ''.join(['[', self.full_spec(), ']'])
-
-    def __add__(self, other):
-        """
-        Adding two AddressLists together yields another AddressList.
-        """
-        if isinstance(other, list):
-            result = self.container + parse_list(other).container
-        else:
-            result = self.container + other.container
-        return AddressList(result)
-
-    def full_spec(self, delimiter=", "):
-        """
-        Returns a full string which looks pretty much what the original was
-        like
-            >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
-            >>> adl.full_spec(delimiter='; ')
-            'Foo <foo@host.com; Bar <bar@host.com>'
-        """
-        return delimiter.join(addr.full_spec() for addr in self.container)
-
-    def to_unicode(self, delimiter=", "):
-        return delimiter.join(addr.to_unicode() for addr in self.container)
-
-    def to_ascii_list(self):
-        return [addr.full_spec() for addr in self.container]
-
-    @property
-    def addresses(self):
-        """
-        Returns a list of just addresses, i.e. no names:
-            >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
-            >>> adl.addresses
-            ['foo@host.com', 'bar@host.com']
-        """
-        return [addr.address for addr in self.container]
-
-    def __str__(self):
-        return self.full_spec()
-
-    @property
-    def hostnames(self):
-        """
-        Returns a set of hostnames used in addresses in this list.
-        """
-        return set([addr.hostname for addr in self.container])
-
-    @property
-    def addr_types(self):
-        """
-        Returns a set of address types used in addresses in this list.
-        """
-        return set([addr.addr_type for addr in self.container])
-
-
-def _normalize_address_list(address_list):
-    parts = []
-
-    for addr in address_list:
-        if isinstance(addr, Address):
-            parts.append(addr.to_unicode())
-        if isinstance(addr, str):
-            parts.append(addr)
-
-    return parts

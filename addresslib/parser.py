@@ -3,8 +3,8 @@
 """
 _AddressParser is an implementation of a recursive descent parser for email
 addresses and urls. While _AddressParser can be used directly it is not
-recommended, use the the parse() and parse_list() methods which are provided
-in the address module for convenience.
+recommended, use the the parse() method which is provided in the address
+module for convenience.
 
 The grammar supported by the parser (as well as other limitations) are
 outlined below. Plugins are also supported to allow for custom more
@@ -89,8 +89,8 @@ class _AddressParser(object):
     private classes and methods and its interface is not guaranteed. It
     will change in the future and possibly break your application.
 
-    Instead use the parse() and parse_list() functions in the address.py
-    module which will always return a scalar or iterable respectively.
+    Instead use the parse() function in the address.py module which will
+    always return a scalar or iterable respectively.
     """
 
     def __init__(self, strict=False):
@@ -317,8 +317,7 @@ class _AddressParser(object):
         """
         start_pos = self.stream.position
 
-        addr = self._name_addr_rfc() or self._name_addr_lax() or \
-            self._addr_spec() or self._url()
+        addr = self._addr_spec()
 
         # if email address, check that it passes post processing checks
         if addr and isinstance(addr, addresslib.address.EmailAddress):
@@ -328,192 +327,6 @@ class _AddressParser(object):
                 return None
 
         return addr
-
-    def _url(self):
-        """
-        Grammar: url -> url
-        """
-        earl = self.stream.get_token(URL)
-        if earl is None:
-            return None
-        return addresslib.address.UrlAddress(to_utf8(earl))
-
-    def _name_addr_rfc(self):
-        """
-        Grammar: name-addr-rfc -> [ display-name-rfc ] angle-addr-rfc
-        """
-        start_pos = self.stream.position
-
-        # optional displayname
-        dname = self._display_name_rfc()
-
-        aaddr = self._angle_addr_rfc()
-        if aaddr is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-
-        if dname:
-            return addresslib.address.EmailAddress(aaddr,
-                                                           parsed_name=dname)
-        return addresslib.address.EmailAddress(aaddr)
-
-    def _display_name_rfc(self):
-        """
-        Grammar: display-name-rfc -> [ whitespace ] word { whitespace word }
-        """
-        wrds = []
-
-        # optional whitespace
-        self._whitespace()
-
-        # word
-        wrd = self._word()
-        if wrd is None:
-            return None
-        wrds.append(wrd)
-
-        while True:
-            # whitespace
-            wtsp = self._whitespace()
-            if wtsp is None:
-                break
-            wrds.append(wtsp)
-
-            # word
-            wrd = self._word()
-            if wrd is None:
-                break
-            wrds.append(wrd)
-
-        return cleanup_display_name(''.join(wrds))
-
-    def _angle_addr_rfc(self):
-        """
-        Grammar: angle-addr-rfc -> [ whitespace ] < addr-spec > [ whitespace ]
-        """
-        start_pos = self.stream.position
-
-        # optional whitespace
-        self._whitespace()
-
-        # left angle bracket
-        lbr = self.stream.get_token(LBRACKET)
-        if lbr is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # addr-spec
-        aspec = self._addr_spec(True)
-        if aspec is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # right angle bracket
-        rbr = self.stream.get_token(RBRACKET)
-        if rbr is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-         # optional whitespace
-        self._whitespace()
-
-        return aspec
-
-    def _name_addr_lax(self):
-        """
-        Grammar: name-addr-lax -> [ display-name-lax ] angle-addr-lax
-        """
-        start_pos = self.stream.position
-
-        # optional displayname
-        dname = self._display_name_lax()
-
-        aaddr = self._angle_addr_lax()
-        if aaddr is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-
-        if dname:
-            return addresslib.address.EmailAddress(aaddr,
-                                                           parsed_name=dname)
-        return addresslib.address.EmailAddress(aaddr)
-
-    def _display_name_lax(self):
-        """
-        Grammar: display-name-lax ->
-            [ whitespace ] word { whitespace word } whitespace
-        """
-
-        start_pos = self.stream.position
-        wrds = []
-
-        # optional whitespace
-        self._whitespace()
-
-        # word
-        wrd = self._word()
-        if wrd is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-        wrds.append(wrd)
-
-        # peek to see if we have a whitespace,
-        # if we don't, we have a invalid display-name
-        if self.stream.peek(WHITESPACE) is None or \
-            self.stream.peek(UNI_WHITE) is None:
-            self.stream.position = start_pos
-            return None
-
-        while True:
-            # whitespace
-            wtsp = self._whitespace()
-            if wtsp:
-                wrds.append(wtsp)
-
-            # if we need to roll back the next word
-            start_pos = self.stream.position
-
-            # word
-            wrd = self._word()
-            if wrd is None:
-                self.stream.position = start_pos
-                break
-            wrds.append(wrd)
-
-            # peek to see if we have a whitespace
-            # if we don't pop off the last word break
-            if self.stream.peek(WHITESPACE) is None or \
-                self.stream.peek(UNI_WHITE) is None:
-                # roll back last word
-                self.stream.position = start_pos
-                wrds.pop()
-                break
-
-        return cleanup_display_name(''.join(wrds))
-
-    def _angle_addr_lax(self):
-        """
-        Grammar: angle-addr-lax -> addr-spec [ whitespace ]
-        """
-        start_pos = self.stream.position
-
-        # addr-spec
-        aspec = self._addr_spec(True)
-        if aspec is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # optional whitespace
-        self._whitespace()
-
-        return aspec
 
     def _addr_spec(self, as_string=False):
         """

@@ -1,5 +1,5 @@
 import collections
-import dnsq
+from .. import dnsq
 
 
 class DNSLookup(collections.MutableMapping):

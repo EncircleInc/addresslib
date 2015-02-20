@@ -64,10 +64,6 @@ customer/department=shipping@example.com
 "Fred\@Bloggs"@example.com
 unsub+ba5df.24d-no_reply-alex=gmail.com@senderhost.com
 bounce+e4f6b7.187-auth-verifier=posrt25.com@senderhost.com
-Bill Gates <"billy"@retired.Micr!osoft99.com>
-Steve Jobs <steve@apple.com>
-Matt "The Matt" Mickiewicz <matt.Mickiewicz@99designs.com>
-"<john@smith.com>" <john@smith.com>
 first.last@iana.org
 1234567890123456789012345678901234567890123456789012345678901234@iana.org
 "first\"last"@iana.org

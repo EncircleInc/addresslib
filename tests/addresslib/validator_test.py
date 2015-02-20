@@ -130,61 +130,6 @@ def test_abridged_mailbox_invalid_set():
             mbox = address.validate_address(addr)
             assert_equal(mbox, None)
 
-
-def test_parse_syntax_only_false():
-    # syntax + validation
-    valid_tld_list = [i + '@ai' for i in valid_localparts()]
-    valid_domain_list = [i + '@mailgun.org' for i in valid_localparts()]
-    valid_subdomain_list = [i + '@fakecompany.mailgun.org' for i in valid_localparts()]
-
-    invalid_mx_list = [i + '@example.com' for i in valid_localparts(True)]
-    invalid_tld_list = [i + '@com' for i in invalid_localparts(True)]
-    invalid_domain_list = [i + '@example.com' for i in invalid_localparts(True)]
-    invalid_subdomain_list = [i + '@sub.example.com' for i in invalid_localparts(True)]
-
-    all_valid_list = valid_tld_list + valid_domain_list + valid_subdomain_list
-    all_invalid_list = invalid_mx_list + invalid_tld_list + invalid_domain_list + \
-        invalid_subdomain_list
-    all_list = all_valid_list + all_invalid_list
-
-    # all valid
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
-        mock_method.side_effect = mock_exchanger_lookup
-
-        parse, unpar = address.validate_list(', '.join(valid_tld_list), as_tuple=True)
-        assert_equal(parse, valid_tld_list)
-        assert_equal(unpar, [])
-
-        parse, unpar = address.validate_list(', '.join(valid_domain_list), as_tuple=True)
-        assert_equal(parse, valid_domain_list)
-        assert_equal(unpar, [])
-
-        parse, unpar = address.validate_list(', '.join(valid_subdomain_list), as_tuple=True)
-        assert_equal(parse, valid_subdomain_list)
-        assert_equal(unpar, [])
-
-        # all invalid
-        parse, unpar = address.validate_list(', '.join(invalid_mx_list), as_tuple=True)
-        assert_equal(parse, [])
-        assert_equal(unpar, invalid_mx_list)
-
-        parse, unpar = address.validate_list(', '.join(invalid_tld_list), as_tuple=True)
-        assert_equal(parse, [])
-        assert_equal(unpar, invalid_tld_list)
-
-        parse, unpar = address.validate_list(', '.join(invalid_domain_list), as_tuple=True)
-        assert_equal(parse, [])
-        assert_equal(unpar, invalid_domain_list)
-
-        parse, unpar = address.validate_list(', '.join(invalid_subdomain_list), as_tuple=True)
-        assert_equal(parse, [])
-        assert_equal(unpar, invalid_subdomain_list)
-
-        parse, unpar = address.validate_list(', '.join(all_list), as_tuple=True)
-        assert_equal(parse, all_valid_list)
-        assert_equal(unpar, all_invalid_list)
-
-
 @patch('addresslib.validate.connect_to_mail_exchanger')
 @patch('addresslib.validate.lookup_domain')
 def test_mx_lookup(ld, cmx):
