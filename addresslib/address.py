@@ -178,13 +178,6 @@ class EmailAddress(object):
         """
         return self.address
 
-    @property
-    def supports_routing(self):
-        """
-        Email addresses can be routed.
-        """
-        return True
-
     def __eq__(self, other):
         """
         Allows comparison of two addresses.

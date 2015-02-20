@@ -6,12 +6,6 @@ from nose.tools import assert_equal, assert_not_equal
 from addresslib.address import parse
 from addresslib.address import EmailAddress
 
-
-def test_addr_properties():
-    email = parse('name@host.com')
-
-    eq_(True, email.supports_routing)
-
 def test_address_compare():
     a = EmailAddress("a@host.com")
     b = EmailAddress("b@host.com")
