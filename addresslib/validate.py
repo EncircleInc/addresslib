@@ -27,10 +27,6 @@ Public Functions in addresslib.validate module:
     * mail_exchanger_lookup(domain)
 
       Looks up the mail exchanger for a given domain.
-
-    * connect_to_mail_exchanger(mx_hosts)
-
-      Attempts to connect to a given mail exchanger to see if it exists.
 """
 
 import re
@@ -140,16 +136,9 @@ def mail_exchanger_lookup(domain, metrics=False):
         if mx_hosts is None:
             return None, mtimes
 
-    # test connecting to the mx exchanger
-    bstart = time.time()
-    mail_exchanger = connect_to_mail_exchanger(mx_hosts)
-    mtimes['mx_conn'] = time.time() - bstart
-    if mail_exchanger is None:
-        return None, mtimes
-
     # valid mx records, connected to mail exchanger, return True
-    mx_cache[domain] = mail_exchanger
-    return mail_exchanger, mtimes
+    mx_cache[domain] = mx_hosts
+    return mx_hosts, mtimes
 
 
 def lookup_exchanger_in_cache(domain):
