@@ -137,8 +137,8 @@ def mail_exchanger_lookup(domain, metrics=False):
             return None, mtimes
 
     # valid mx records, connected to mail exchanger, return True
-    mx_cache[domain] = mx_hosts
-    return mx_hosts, mtimes
+    mx_cache[domain] = mx_hosts[0]
+    return mx_hosts[0], mtimes
 
 
 def lookup_exchanger_in_cache(domain):
