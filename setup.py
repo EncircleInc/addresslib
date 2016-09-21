@@ -22,7 +22,7 @@ setup(name='addresslib',
           'mock'
       ],
       install_requires=[
-          'dnspython3',
+          'dnspython',
           'redis',
           'regex',
       ],
