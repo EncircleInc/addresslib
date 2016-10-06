@@ -181,22 +181,4 @@ def lookup_domain(domain):
     return mx_hosts
 
 
-def connect_to_mail_exchanger(mx_hosts):
-    """
-    Given a list of MX hosts, attempts to connect to at least one on port 25.
-    Returns the mail exchanger it was able to connect to or None.
-    """
-    for host in mx_hosts:
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(1.0)
-            s.connect((host, 25))
-            s.close()
-            return host
-        except:
-            continue
-
-    return None
-
-
 ONE_WEEK = 604800

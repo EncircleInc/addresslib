@@ -130,7 +130,6 @@ def test_abridged_mailbox_invalid_set():
             mbox = address.validate_address(addr)
             assert_equal(mbox, None)
 
-@patch('addresslib.validate.connect_to_mail_exchanger')
 @patch('addresslib.validate.lookup_domain')
 def test_mx_lookup(ld, cmx):
     # has MX, has MX server
