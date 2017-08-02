@@ -4,9 +4,9 @@ import sys
 from setuptools import setup, find_packages
 
 
-setup(name='addresslib',
+setup(name='addresslib3',
       version='0.4.27',
-      description='Email Validation forked from Flanker',
+      description='Email Validation forked from Flanker, compatible with python3',
       long_description=open('README.rst').read(),
       classifiers=[],
       keywords='',
